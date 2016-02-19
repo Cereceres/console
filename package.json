@@ -1,0 +1,24 @@
+{
+  "name": "console",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cereceres/console.git"
+  },
+  "author": "Jesus Cereceres",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Cereceres/console/issues"
+  },
+  "homepage": "https://github.com/Cereceres/console#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "kamaji-sdk-js": "git+https://github.com/4yopping/kamaji-sdk-js.git",
+    "prompt": "^1.0.0"
+  }
+}
