@@ -7,10 +7,12 @@ const config = require( './config' )
 const fs = require( 'fs' )
 const Coevent = require( 'co-eventemitter' )
 const inquirer = require( 'inquirer' );
-// Kamji connection
-//
+let res
+  // Kamji connection
+  //
 global.fixtures = {}
 global.fixtures.connection = {
+
   host: process.env.HOST || 'https://' + config.server.host + ':' + config.server
     .port,
   key: process.env.KEY || './keys/client-key.pem',
@@ -21,8 +23,8 @@ global.fixtures.connection = {
 // Store for test, the stores are created from CMS
 //
 global.fixtures.store = {
-  appKey: faker.random.number( 9999999 ) || process.env.APPKEY,
-  appSecret: faker.random.uuid( ) || process.env.APPSECRET,
+  appKey: 'testtoconsole',
+  appSecret: 'secretAccessKey'
 }
 
 let kamaji = new Kamaji( {
@@ -37,41 +39,40 @@ console.log( 'global.fixtures.connection.host', global.fixtures.connection.host 
 let coevent = new Coevent( ),
   card
 coevent.on( 'card', function* ( data ) {
-    kamaji.connect( )
-    card = new kamaji.card( data )
+    console.log( 'generando la card' );
+    card = new kamaji.Card( data )
     card = yield card.save( )
     console.log( 'respose card:', card );
   } )
   .on( 'pay', function* ( answers ) {
     console.log( 'answers en pay', answers );
     res = yield kamaji.connect( )
-      .then( function ( res ) {
-        console.log( 'res===>>>>', res );
-        return res
-      } )
-    console.log( 'res=', res );
-    console.log( 'answers.haveCard', answers.haveCard );
+    console.log( 'res to connect=', res );
     if ( !answers.haveCard ) {
+      console.log( 'emitiendo el evento de card' );
       yield coevent.emit( 'card', {
-        firstname: answers.firstname,
-        lastname: answers.lastname,
-        card: answers.card,
+        holderFirstname: answers.firstname,
+        holderLastname: answers.lastname,
+        cardNumber: answers.number,
         cvv: answers.cvv,
-        expiry_month: answers.expiry_month,
-        expiry_year: answers.expiry_year,
+        expirationMonth: answers.expiry_month,
+        expirationYear: answers.expiry_year,
         customer: answers.customer,
       } )
     } else {
       card = answers.card
     }
-    let payment = new kamaji.payment( {
+    let payment = new kamaji.Payment( {
       order: answers.reference_id,
       card: card
     } )
-    let res = yield payment.save( {
+    res = yield payment.save( {
       lean: true
     } )
     console.log( 'respose Payment:', res );
+  } )
+  .on( 'error', function ( e ) {
+    console.log( 'error in the event=', e );
   } )
 const program = require( 'commander' )
 program

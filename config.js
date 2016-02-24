@@ -21,16 +21,6 @@ module.exports = rc( 'console', {
     secret_access_key: 'super_secret',
     sqs_url: 'http://sqs_url:500'
   },
-  psp: {
-    app_key: 'Your_app_key',
-    app_secret: 'Your_very_secure_secret',
-    host: 'http://private-7cbf7-psprest.apiary-mock.com',
-    key: fs.readFileSync( './keys/client-key.pem' ),
-    cert: fs.readFileSync( './keys/client-cert.pem' ),
-    ca: [ './keys/server-cert.pem' ],
-    requestCert: true,
-    rejectUnauthorized: true
-  },
   jwt: {
     secret: './keys/server-key.pem',
     options: {
