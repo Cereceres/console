@@ -2,7 +2,6 @@
 
 'use strict'
 const Kamaji = require( 'kamaji-sdk-js' )
-const faker = require( 'faker' )
 const config = require( './config' )
 const fs = require( 'fs' )
 const Coevent = require( 'co-eventemitter' )
@@ -35,7 +34,6 @@ let kamaji = new Kamaji( {
   cert: fs.readFileSync( './keys/unauthorized-client-cert.pem' ),
   ca: fs.readFileSync( './keys/server-cert.pem' )
 } )
-console.log( 'global.fixtures.connection.host', global.fixtures.connection.host );
 let coevent = new Coevent( ),
   card
 coevent.on( 'card', function* ( data ) {
@@ -45,11 +43,8 @@ coevent.on( 'card', function* ( data ) {
     console.log( 'respose card:', card );
   } )
   .on( 'pay', function* ( answers ) {
-    console.log( 'answers en pay', answers );
     res = yield kamaji.connect( )
-    console.log( 'res to connect=', res );
     if ( !answers.haveCard ) {
-      console.log( 'emitiendo el evento de card' );
       yield coevent.emit( 'card', {
         holderFirstname: answers.firstname,
         holderLastname: answers.lastname,
@@ -62,6 +57,7 @@ coevent.on( 'card', function* ( data ) {
     } else {
       card = answers.card
     }
+
     let payment = new kamaji.Payment( {
       order: answers.reference_id,
       card: card
@@ -165,13 +161,9 @@ program
       } ],
       function ( answers ) {
         coevent.emit( 'pay', answers )
-          .then( function ( ) {
-            console.log( 'se acabo de emitir todo' );
-          } )
           .catch( function ( e ) {
             console.log( 'error=', e.stack );
           } )
-        console.log( 'se emitio el evento' );
       } )
   } )
 
