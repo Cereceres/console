@@ -5,7 +5,7 @@ const rc = require( 'rc' )
 module.exports = rc( 'console', {
   server: {
     host: 'localhost',
-    port: 3000,
+    port: 8000,
     key: './keys/server-key.pem',
     cert: './keys/server-cert.pem',
     ca: [ './keys/client-cert.pem' ]

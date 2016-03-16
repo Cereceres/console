@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 
 'use strict'
-const Kamaji = require( 'kamaji-sdk-js' )
+const Psp = require( 'psp-sdk-js' )
 const config = require( './config' )
 const fs = require( 'fs' )
 const Coevent = require( 'co-eventemitter' )
 const inquirer = require( 'inquirer' );
-let res
-  // Kamji connection
-  //
+// Kamji connection
+//
 global.fixtures = {}
 global.fixtures.connection = {
 
-  host: process.env.HOST || 'https://' + config.server.host + ':' + config.server
+  host: process.env.HOST || 'http://' + config.server.host + ':' + config.server
     .port,
   key: process.env.KEY || './keys/client-key.pem',
   cert: process.env.CERT || './keys/client-cert.pem',
@@ -23,12 +22,15 @@ global.fixtures.connection = {
 //
 global.fixtures.store = {
   appKey: 'testtoconsole',
-  appSecret: 'secretAccessKey'
+  appSecret: 'secretAccessKey',
+  email: 'kamaji@email.com',
+  password: '4356345765765'
+
 }
 
-let kamaji = new Kamaji( {
-  appKey: global.fixtures.store.appKey,
-  appSecret: global.fixtures.store.appSecret,
+let psp = new Psp( {
+  email: global.fixtures.store.email,
+  password: global.fixtures.store.password,
   host: global.fixtures.connection.host,
   key: fs.readFileSync( './keys/unauthorized-client-key.pem' ),
   cert: fs.readFileSync( './keys/unauthorized-client-cert.pem' ),
@@ -38,12 +40,17 @@ let coevent = new Coevent( ),
   card
 coevent.on( 'card', function* ( data ) {
     console.log( 'generando la card' );
-    card = new kamaji.Card( data )
-    card = yield card.save( )
+    card = new psp.Card( data )
+    card = yield card.save( {
+      lean: true
+    } )
     console.log( 'respose card:', card );
+    card = card.token
   } )
   .on( 'pay', function* ( answers ) {
-    res = yield kamaji.connect( )
+    console.log( 'conectando el PSP' );
+    let res = yield psp.connect( )
+    console.log( 'res', res );
     if ( !answers.haveCard ) {
       yield coevent.emit( 'card', {
         holderFirstname: answers.firstname,
@@ -52,15 +59,22 @@ coevent.on( 'card', function* ( data ) {
         cvv: answers.cvv,
         expirationMonth: answers.expiry_month,
         expirationYear: answers.expiry_year,
-        customer: answers.customer,
+        customer: answers.customer
       } )
     } else {
       card = answers.card
     }
 
-    let payment = new kamaji.Payment( {
-      order: answers.reference_id,
-      card: card
+    let payment = new psp.Payment( {
+      amount: answers.amount || Math.floor( Math.random( ) * 5000 ),
+      token: answers.card,
+      name: answers.firstname && answers.lastname ?
+        answers.firstname + ' ' + answers.lastname : '',
+      email: answers.email,
+      items: [ {
+        item: 'totest'
+      } ],
+      reference_id: Math.floor( Math.random( ) * 100000000000000000000 )
     } )
     res = yield payment.save( {
       lean: true
@@ -79,25 +93,13 @@ program
     inquirer.prompt(
       [ {
         type: 'confirm',
-        name: 'haveOrder',
-        message: 'Have a order?',
-        default: true
-      }, {
-        type: 'input',
-        name: 'reference_id',
-        message: 'reference_id?',
-        when: function ( ans ) {
-          return ans.haveOrder
-        }
-      }, {
-        type: 'confirm',
         name: 'haveCard',
         message: 'Have a card?',
         default: true
       }, {
         type: 'input',
         name: 'card',
-        message: 'reference_id of Card?',
+        message: 'token of Card?',
         when: function ( ans ) {
           return ans.haveCard
         }
@@ -158,6 +160,14 @@ program
         when: function ( ans ) {
           return !ans.haveCard && ans.createCard
         }
+      }, {
+        type: 'input',
+        name: 'email',
+        message: 'email to contact?',
+      }, {
+        type: 'input',
+        name: 'amount',
+        message: 'monto a cobrar?'
       } ],
       function ( answers ) {
         coevent.emit( 'pay', answers )
