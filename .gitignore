@@ -161,3 +161,9 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+
+# PSP
+.psprc
+documentation.html
+*.pem

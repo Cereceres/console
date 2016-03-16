@@ -1,24 +1,22 @@
 {
   "name": "console",
   "version": "1.0.0",
-  "description": "",
+  "description": "console ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Cereceres/console.git"
+    "test": "mocha test/test.js",
+    "_update": "rm -rf node_modules/co-eventemitter && npm install"
   },
   "author": "Jesus Cereceres",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Cereceres/console/issues"
-  },
-  "homepage": "https://github.com/Cereceres/console#readme",
   "dependencies": {
+    "co": "^4.6.0",
+    "co-eventemitter": "git+https://github.com/Cereceres/co-Eventemitter.git",
     "commander": "^2.9.0",
+    "faker": "^3.0.1",
+    "inquirer": "^0.12.0",
     "kamaji-sdk-js": "git+https://github.com/4yopping/kamaji-sdk-js.git",
-    "prompt": "^1.0.0"
+    "psp-sdk-js": "git+https://github.com/4yopping/psp-sdk.git",
+    "rc": "^1.1.6"
   }
 }
