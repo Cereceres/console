@@ -62,6 +62,7 @@ coevent.on( 'card', function* ( data ) {
         expiry_year: answers.expiry_year
       } )
       console.log( 'res of card', res );
+      card = card.token
     } else {
       card = answers.card
     }
